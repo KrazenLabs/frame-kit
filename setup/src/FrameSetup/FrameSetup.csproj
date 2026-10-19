@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>FrameKit.Setup.App</RootNamespace>
+    <SetupAssemblyName Condition="'$(SetupAssemblyName)' == ''">FrameKit-Setup</SetupAssemblyName>
+    <AssemblyName>$(SetupAssemblyName)</AssemblyName>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets/installer.ico</ApplicationIcon>
+    <Product>FrameKit Setup</Product>
+    <Company>FrameKit</Company>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FrameSetup.Core\FrameSetup.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+    <EmbeddedResource Include="THIRD-PARTY-NOTICES.txt" LogicalName="third-party-notices.txt" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(AppPackage)' != ''">
+    <EmbeddedResource Include="$(AppPackage)" LogicalName="app-package.tar.gz" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(AppBranding)' != ''">
+    <EmbeddedResource Include="$(AppBranding)" LogicalName="app-setup.json" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(AppIcon)' != ''">
+    <EmbeddedResource Include="$(AppIcon)" LogicalName="app-icon.png" />
+  </ItemGroup>
+
+</Project>

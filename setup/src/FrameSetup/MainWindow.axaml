@@ -1,0 +1,257 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:app="using:FrameKit.Setup.App"
+        xmlns:core="using:FrameKit.Setup"
+        x:Class="FrameKit.Setup.App.MainWindow"
+        x:DataType="app:SetupViewModel"
+        Title="{Binding WindowTitle}"
+        Icon="/Assets/installer.ico"
+        Width="720" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterScreen">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="24,20,24,10">
+
+    <DockPanel Grid.Row="0" Margin="0,0,0,16">
+      <Panel DockPanel.Dock="Left" Width="48" Height="48" Margin="0,0,14,0" VerticalAlignment="Center">
+        <Image Source="{Binding Icon}" IsVisible="{Binding HasIcon}" Width="48" Height="48" />
+        <Image Source="/Assets/installer.png" IsVisible="{Binding !HasIcon}" Width="48" Height="48" />
+      </Panel>
+      <StackPanel VerticalAlignment="Center" Spacing="2">
+        <TextBlock Classes="title" Text="{Binding AppName}" TextWrapping="Wrap" MaxLines="3" TextTrimming="CharacterEllipsis" />
+        <TextBlock Classes="muted" Text="{Binding AppSubtitle}" TextWrapping="Wrap" />
+      </StackPanel>
+    </DockPanel>
+
+    <Panel Grid.Row="1">
+
+      <DockPanel IsVisible="{Binding IsWelcomePage}" LastChildFill="True">
+        <DockPanel DockPanel.Dock="Bottom" Margin="0,20,0,0">
+          <Button DockPanel.Dock="Left" Classes="corner" Content="Third-party notices" Command="{Binding ShowNoticesCommand}" />
+          <Button Classes="primary" Content="Continue" Command="{Binding ContinueCommand}" IsDefault="True" HorizontalAlignment="Right" />
+        </DockPanel>
+        <StackPanel Spacing="14">
+          <TextBlock Classes="body" FontSize="16" Text="{Binding AppDescription}" MaxLines="8" TextTrimming="CharacterEllipsis" />
+          <Border Classes="card">
+            <StackPanel Spacing="8">
+              <TextBlock Classes="body" Text="{Binding WelcomeText}" />
+              <TextBlock Classes="body muted" Text="Please make sure your Steam Frame is connected to the same network as the PC." />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </DockPanel>
+
+      <DockPanel IsVisible="{Binding IsNotices}">
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+          <Button Classes="primary" Content="Back" Command="{Binding CloseNoticesCommand}" IsDefault="True" IsCancel="True" />
+        </StackPanel>
+        <TextBlock DockPanel.Dock="Top" Classes="title" FontSize="20" Text="Third-party notices" Margin="0,0,0,10" />
+        <Border Classes="card" Padding="12,8" Height="340">
+          <ListBox Classes="notices" ItemsSource="{Binding NoticesLines}">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="x:String">
+                <TextBlock Text="{Binding}" TextWrapping="Wrap" FontFamily="Cascadia Mono, Consolas, monospace" FontSize="11" />
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </Border>
+      </DockPanel>
+
+      <DockPanel IsVisible="{Binding IsConnect}">
+        <Border DockPanel.Dock="Top" Classes="card" Margin="0,0,0,14" MinHeight="112">
+          <DockPanel>
+            <ProgressBar DockPanel.Dock="Right" IsIndeterminate="True" Width="90" VerticalAlignment="Center" Margin="16,0,0,0"
+                         IsVisible="{Binding ConnectBusy}" />
+            <StackPanel Spacing="4">
+              <TextBlock Text="{Binding ConnectStatus}" FontWeight="SemiBold" FontSize="15" TextWrapping="Wrap" />
+              <TextBlock Classes="body muted" Text="{Binding ConnectDetail}" />
+              <ComboBox IsVisible="{Binding ShowHeadsetChoice}" ItemsSource="{Binding Headsets}" SelectedItem="{Binding SelectedHeadset}"
+                        PlaceholderText="Choose your Steam Frame" Margin="0,6,0,0" MinWidth="260">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate x:DataType="core:HeadsetCandidate">
+                    <TextBlock Text="{Binding Label}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <Button IsVisible="{Binding ShowForget}" Content="Trust this headset" Command="{Binding ForgetHeadsetCommand}" Margin="0,6,0,0" />
+              <StackPanel IsVisible="{Binding ShowRetry}" Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
+                <Button IsVisible="{Binding ShowResetKey}" Content="Create new key" Command="{Binding ResetKeyCommand}" />
+                <Button Content="Try again" Command="{Binding RetryConnectingCommand}" />
+              </StackPanel>
+            </StackPanel>
+          </DockPanel>
+        </Border>
+        <StackPanel DockPanel.Dock="Bottom" Spacing="8" Margin="0,12,0,0">
+          <Button Content="Enter the headset address manually" Command="{Binding ToggleManualCommand}" Background="Transparent"
+                  Foreground="{StaticResource SteamBlue}" Padding="0" />
+          <StackPanel IsVisible="{Binding ShowManual}" Orientation="Horizontal" Spacing="8">
+            <TextBox Text="{Binding ManualAddress}" Width="220" PlaceholderText="e.g. 192.168.1.50" />
+            <Button Content="Connect" Command="{Binding ConnectManualCommand}" />
+          </StackPanel>
+          <TextBlock IsVisible="{Binding ShowManual}" Classes="body muted"
+                     Text="To find the address, put on the Steam Frame and go to Settings → Internet, select your network. The IP Address should be under Advanced Info." />
+          <TextBlock Text="{Binding ManualError}" Foreground="{StaticResource Bad}" IsVisible="{Binding ManualError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+        </StackPanel>
+        <ScrollViewer>
+          <StackPanel Spacing="12">
+            <TextBlock FontWeight="SemiBold" Text="Please put on the headset and follow these steps:" />
+            <DockPanel>
+              <Border DockPanel.Dock="Left" Classes="step" Margin="0,0,12,0">
+                <TextBlock Text="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Foreground="White" />
+              </Border>
+              <StackPanel Spacing="8">
+                <TextBlock Classes="body"><Run Text="Open the Steam menu, then " /><Run Text="Settings → System" FontWeight="SemiBold" /><Run Text=", and turn on " /><Run Text="Enable Developer Mode" FontWeight="SemiBold" /><Run Text="." /></TextBlock>
+                <Image Source="/Assets/step-developer-mode.png" Stretch="Uniform" MaxWidth="600" HorizontalAlignment="Left" />
+              </StackPanel>
+            </DockPanel>
+            <DockPanel>
+              <Border DockPanel.Dock="Left" Classes="step" Margin="0,0,12,0">
+                <TextBlock Text="2" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Foreground="White" />
+              </Border>
+              <StackPanel Spacing="8">
+                <TextBlock Classes="body"><Run Text="Open " /><Run Text="Settings → Developer" FontWeight="SemiBold" /><Run Text=" and click " /><Run Text="Pair new host" FontWeight="SemiBold" /><Run Text="." /></TextBlock>
+                <Image Source="/Assets/step-pair-new-host.png" Stretch="Uniform" MaxWidth="600" HorizontalAlignment="Left" />
+              </StackPanel>
+            </DockPanel>
+            <DockPanel>
+              <Border DockPanel.Dock="Left" Classes="step" Margin="0,0,12,0">
+                <TextBlock Text="3" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Foreground="White" />
+              </Border>
+              <TextBlock Classes="body" Text="{Binding PairingStepText}" />
+            </DockPanel>
+          </StackPanel>
+        </ScrollViewer>
+      </DockPanel>
+
+      <DockPanel IsVisible="{Binding IsReady}">
+        <StackPanel DockPanel.Dock="Bottom" Spacing="12" Margin="0,20,0,0">
+          <Border Classes="card" IsVisible="{Binding ConfirmingUninstall}">
+            <StackPanel Spacing="10">
+              <TextBlock Text="{Binding UninstallQuestion}" FontWeight="SemiBold" TextWrapping="Wrap" />
+              <CheckBox IsChecked="{Binding PurgeData}" Content="Also delete its settings and data" IsVisible="{Binding HasDataDirs}" />
+              <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                <Button Classes="secondary" Content="Cancel" Command="{Binding CancelUninstallCommand}" />
+                <Button Classes="secondary" Content="Remove" Command="{Binding UninstallCommand}" Foreground="#FF7B6E" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
+          <Border Classes="card" IsVisible="{Binding ConfirmingUnpair}">
+            <StackPanel Spacing="10">
+              <TextBlock Text="{Binding UnpairQuestion}" FontWeight="SemiBold" TextWrapping="Wrap" />
+              <TextBlock Classes="body muted" TextWrapping="Wrap"
+                         Text="This will prevent the installer from making changes until you pair again." />
+              <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                <Button Classes="secondary" Content="Cancel" Command="{Binding CancelUnpairCommand}" />
+                <Button Classes="secondary" Content="Unpair" Command="{Binding UnpairCommand}" Foreground="#FF7B6E" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
+          <DockPanel IsVisible="{Binding ShowReadyActions}">
+            <Button DockPanel.Dock="Left" Content="Unpair this PC…" Command="{Binding AskUnpairCommand}" Background="Transparent"
+                    Foreground="{StaticResource SteamBlue}" Padding="0" VerticalAlignment="Center" />
+            <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+              <Button Classes="secondary" Content="Remove…" Command="{Binding AskUninstallCommand}" IsVisible="{Binding IsInstalled}" />
+              <Button Classes="primary" Command="{Binding InstallCommand}" IsEnabled="{Binding CanInstall}" IsDefault="True" MaxWidth="400"
+                      ToolTip.Tip="{Binding PrimaryActionText}">
+                <TextBlock Text="{Binding PrimaryActionText}" TextTrimming="CharacterEllipsis" />
+              </Button>
+            </StackPanel>
+          </DockPanel>
+        </StackPanel>
+        <StackPanel Spacing="12">
+          <Border Classes="card">
+            <DockPanel>
+              <Button DockPanel.Dock="Right" Content="Select a different headset" Command="{Binding OtherHeadsetCommand}" VerticalAlignment="Center" />
+              <StackPanel Spacing="3">
+                <TextBlock FontWeight="SemiBold" FontSize="15" TextWrapping="Wrap"><Run Text="Selected Steam Frame: " /><Run Text="{Binding HeadsetName}" /></TextBlock>
+                <TextBlock Classes="muted" Text="{Binding HeadsetDetails}" TextWrapping="Wrap" />
+              </StackPanel>
+            </DockPanel>
+          </Border>
+          <TextBlock Classes="body" FontSize="15" Text="{Binding InstalledText}" />
+          <TextBlock Classes="body" Foreground="#FFC82C" Text="{Binding ReadyNote}" IsVisible="{Binding ReadyNote, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+          <StackPanel Spacing="4">
+            <CheckBox IsChecked="{Binding AutoUpdate}" Content="Allow automatic update checks" IsVisible="{Binding OffersAutoUpdate}" />
+            <TextBlock Classes="body muted" Margin="32,0,0,4" IsVisible="{Binding OffersAutoUpdate}" Text="If enabled, the application will regularly check for updates and notify you if one is available." />
+            <CheckBox IsChecked="{Binding RestartSteamVRAfter}" IsVisible="{Binding AppNeedsSteamVRRestart}">
+              <TextBlock TextWrapping="Wrap" Text="Restart SteamVR to finish setup (headset view can go dark for about 20 seconds - this is normal)" />
+            </CheckBox>
+          </StackPanel>
+        </StackPanel>
+      </DockPanel>
+
+      <StackPanel IsVisible="{Binding IsWorking}" Spacing="14">
+        <TextBlock Classes="title" FontSize="20" Text="{Binding WorkingTitle}" TextWrapping="Wrap" />
+        <ProgressBar IsIndeterminate="True" />
+        <TextBlock Classes="body muted" Text="Please make sure the headset remains powered on and not in sleep mode until setup is finished." />
+        <Border Classes="card" IsVisible="{Binding ConfirmingClose}">
+          <StackPanel Spacing="10">
+            <TextBlock Text="{Binding CloseQuestion}" FontWeight="SemiBold" TextWrapping="Wrap" />
+            <TextBlock Classes="body muted" TextWrapping="Wrap" Text="{Binding CloseNote}" />
+            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+              <Button Classes="secondary" Content="Close anyway" Command="{Binding CloseAnywayCommand}" />
+              <Button Classes="primary" Content="Continue setup" Command="{Binding KeepWaitingCommand}" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+        <StackPanel Spacing="8">
+          <ToggleButton x:Name="DetailsToggle" Classes="details">
+            <DockPanel>
+              <Path DockPanel.Dock="Right" Classes="chevron" Data="M 0,0 L 5,5 L 10,0" Width="10" Height="5" VerticalAlignment="Center" />
+              <TextBlock Text="Details" />
+            </DockPanel>
+          </ToggleButton>
+          <TextBox IsVisible="{Binding #DetailsToggle.IsChecked}" Text="{Binding LogText}" IsReadOnly="True" AcceptsReturn="True"
+                   TextWrapping="Wrap" Height="220" FontFamily="Cascadia Mono, Consolas, monospace" FontSize="12" />
+        </StackPanel>
+      </StackPanel>
+
+      <DockPanel IsVisible="{Binding IsDone}">
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right" Margin="0,20,0,0">
+          <Button Classes="secondary" Content="{Binding CopyDetailsText}" Command="{Binding CopyDetailsCommand}" IsVisible="{Binding ShowCopyDetails}" />
+          <Button Classes="secondary" Content="Back" Command="{Binding StartOverCommand}" />
+          <Button Classes="primary" Content="Close" Command="{Binding CloseCommand}" IsDefault="True" />
+        </StackPanel>
+        <StackPanel Spacing="12">
+          <DockPanel>
+            <Border DockPanel.Dock="Left" Width="40" Height="40" CornerRadius="20" Margin="0,0,14,0"
+                    Background="{StaticResource Good}" IsVisible="{Binding DoneSuccess}">
+              <TextBlock Text="✓" FontSize="22" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <Border DockPanel.Dock="Left" Width="40" Height="40" CornerRadius="20" Margin="0,0,14,0"
+                    Background="{StaticResource Bad}" IsVisible="{Binding !DoneSuccess}">
+              <TextBlock Text="!" FontSize="22" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <TextBlock Classes="title" FontSize="20" Text="{Binding DoneTitle}" VerticalAlignment="Center" TextWrapping="Wrap" />
+          </DockPanel>
+          <TextBlock Classes="body" FontSize="15" Text="{Binding DoneMessage}" IsVisible="{Binding DoneMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+          <TextBlock Classes="body muted" Text="{Binding DoneHint}" IsVisible="{Binding DoneHint, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+          <HyperlinkButton Classes="report" NavigateUri="{Binding SupportUri}" IsVisible="{Binding ShowReportLink}" Padding="0" Margin="0,-4,0,0">
+            <TextBlock Text="Click here to report" />
+          </HyperlinkButton>
+          <Border Classes="card" IsVisible="{Binding OfferSteamVRRestart}">
+            <DockPanel>
+              <Button DockPanel.Dock="Right" Classes="primary" Content="Restart SteamVR now" Command="{Binding RestartSteamVRCommand}" VerticalAlignment="Center" Margin="12,0,0,0" />
+              <TextBlock Classes="body" Text="SteamVR needs to restart to finish setup. Restart now? This will quit any open applications." />
+            </DockPanel>
+          </Border>
+          <Border Classes="card" IsVisible="{Binding ShowDevModeNote}">
+            <TextBlock Classes="body muted" Text="{Binding DevModeNote}" />
+          </Border>
+        </StackPanel>
+      </DockPanel>
+
+      <DockPanel IsVisible="{Binding IsBroken}">
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+          <Button Classes="primary" Content="Close" Command="{Binding CloseCommand}" />
+        </StackPanel>
+        <TextBlock Classes="body" FontSize="15" Text="{Binding BrokenMessage}" />
+      </DockPanel>
+
+    </Panel>
+
+    <HyperlinkButton Grid.Row="2" Classes="footer" HorizontalAlignment="Center" Margin="0,14,0,0"
+                     NavigateUri="{x:Static app:MainWindow.FrameKitPage}">
+      <TextBlock Text="Installer created using FrameKit (click here for more info)" TextWrapping="Wrap" TextAlignment="Center" />
+    </HyperlinkButton>
+  </Grid>
+</Window>

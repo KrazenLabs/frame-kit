@@ -1,0 +1,14 @@
+[Unit]
+Description=FrameKit panel in Steam's Quick Access menu
+ConditionDirectoryNotEmpty=%h/.local/share/framekit/panel.d
+
+[Service]
+Type=simple
+ExecStart=%h/.local/share/framekit/panel/current/framekit-panel run
+Restart=on-failure
+RestartSec=5
+Nice=10
+CPUAffinity=0-2
+
+[Install]
+WantedBy=default.target

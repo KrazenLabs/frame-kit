@@ -1,0 +1,9 @@
+bin/
+obj/
+dist/
+*.user
+panel/build/*
+!panel/build/framekit-panel/
+*.af
+*.cm
+promo/

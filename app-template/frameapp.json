@@ -1,0 +1,19 @@
+{
+  "id": "yourname-your-app",
+  "name": "Your App",
+  "version": "0.1.0",
+  "description": "One sentence about what your app does.",
+  "publisher": "Your Name",
+  "min_os_version": "0.4.5",
+  "free_mb": 20,
+  "executables": [],
+  "service": false,
+  "data_dirs": [],
+  "updates": {
+    "index": "",
+    "base": ""
+  },
+  "setup": {
+    "found_it": "Open the Steam menu, then Quick Access → Community Apps → Your App."
+  }
+}
