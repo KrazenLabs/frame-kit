@@ -8,7 +8,7 @@ This is how:
 
 - Windows or Linux
 - .NET10 SDK
-- The latest FrameKit release package
+- The latest FrameKit release (just download the main branch)
 
 ## Packaging your Steam Frame app with FrameKit
 ### Step 1: Creating a signature key
