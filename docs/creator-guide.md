@@ -54,6 +54,8 @@ payload\
 
 ### Step 5: Edit `frameapp.json`
 
+(should be pretty self-explanatory)
+
 ```json
 {
   "id": "creator-cool-app",
