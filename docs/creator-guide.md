@@ -7,13 +7,13 @@ This is how:
 ## Requirements for your dev machine
 
 - Windows or Linux
-- .NET10 SDK
+- .NET 10 SDK
 - The latest FrameKit release (just download the main branch)
 
 ## Packaging your Steam Frame app with FrameKit
 ### Step 1: Creating a signature key
 
-You must sign your packages for installation via FrameKit. This prevents thid-parties from distributing malicious versions of your application if your distribution platform ever gets compromised.
+You must sign your packages for installation via FrameKit. This prevents third parties from distributing malicious versions of your application if your distribution platform ever gets compromised.
 
 #### Create a key by running
 
@@ -45,7 +45,7 @@ Put your application files into the payload directory:
 ```
 payload\
   creator-cool-app             your program (ARM64 Linux)
-  creator-cool-app.service     service defintion (optional, only if your application should run in a system service)
+  creator-cool-app.service     service definition (optional, only if your application should run as a systemd user service)
   panel.json                   your section on the Community Apps tab (optional)
   icon.svg                     icon for your application in the Community Apps tab (optional)
   config.json                  application default settings (optional)
@@ -82,6 +82,8 @@ payload\
   }
 }
 ```
+
+`setup.icon` is optional (256x256 PNG)
 
 ### Step 6 (optional): Add your application to the Community Apps tab
 
@@ -128,10 +130,10 @@ This will create the following files in the output directory:
 - `creator-cool-app-1.0.0-aarch64.tar.gz`: application package
 - `creator-cool-app-1.0.0-aarch64.tar.gz.sig`: signature
 - `creator-cool-app-latest.txt`: version info for updates
-- `CoolApp-Setup-1.0.0.exe`: Windows setup
-- `CoolApp-Setup-1.0.0-linux-x64.tar.gz`: Linux setup
+- `MyCoolApp-Setup-1.0.0.exe`: Windows setup
+- `MyCoolApp-Setup-1.0.0-linux-x64.tar.gz`: Linux setup
 
-Publish these files whereever you like and run setup to install.
+Publish these files wherever you like and run setup to install.
 
 ### Updating
 
@@ -146,8 +148,8 @@ Users can either update through the update button in the Community Apps tab or b
 1. Make a new key: `.\framekit key --path <path to new-key-name.pem> --passphrase`.
 2. Release your next version signed with the **old** key, handing over to the new one:
    `.\framekit release … --key <old key> --next-key <new key>`.
-3. Headsets need to update to this version before they can update to new releases using your new key, so make sure to givem them plenty of time to update first.
+3. Headsets need to update to this version before they can update to new releases using your new key, so make sure to give them plenty of time to update first.
 
 > [!IMPORTANT]
-If users do not update in time, the next update check returns the error "Update file failed signature checks". In that case they need to run the newest setup from your releases to update.
+If users do not update in time, the next update check returns the error "update file failed signature checks". In that case they need to run the newest setup from your releases to update.
 
