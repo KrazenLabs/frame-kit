@@ -13,3 +13,7 @@ FrameKit allows you to package your custom Steam Frame ARM application with an i
 - **Flexible:** Can install applications, CLI tools, services and SteamVR drivers and support install scripts (however, please note that only native ARM64 Linux applications are supported)
 - **Secure:** Supports signed update packages to prevent toolchain attacks
 - **Bonus:** Includes a custom C++ library for commonly used tooling (like JSON handling, bluetooth, timers, etc.) (still somewhat WIP)
+
+## Creating your own installer
+
+[You can find the Creator Guide here!](docs/creator-guide.md)
