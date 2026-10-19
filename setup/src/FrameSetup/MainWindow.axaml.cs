@@ -8,7 +8,7 @@ public sealed partial class MainWindow : Window
     private const double FallbackChromeHeight = 40;
     private double _chromeHeight = FallbackChromeHeight;
 
-    public static Uri FrameKitPage { get; } = new("https://example.com/framekit");
+    public static Uri FrameKitPage { get; } = new("https://github.com/KrazenLabs/frame-kit");
 
     public MainWindow()
     {
