@@ -135,7 +135,11 @@ fetch_problem() {
     problem_name=$(url_name "$1")
     problem_host=$(url_host "$1")
     at=${problem_host:+ ($problem_host)}
-    case "$2:$3" in
+    problem_status=$2
+    case "$3" in
+        [45][0-9][0-9]) problem_status=22 ;;
+    esac
+    case "$problem_status:$3" in
         22:404|22:410) echo "failed to find release file ${problem_name:-update info} ($3)" ;;
         37:*) echo "failed to find release file ${problem_name:-update info}" ;;
         22:401|22:403) echo "update server refused to send ${problem_name:-the update info} ($3)" ;;
