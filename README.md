@@ -2,6 +2,8 @@
 
 FrameKit allows you to package your custom Steam Frame ARM application with an installer that gives both Windows and Linux users an easy to use GUI application that makes installation as simple as with any common software.
 
+![Example Screenshots](docs/img/setup/collage.png)
+
 ## Features
 
 - **No sideloading needed:** Quickly and easily package your existing applications in a self-installing setup, no sideloaders needed
