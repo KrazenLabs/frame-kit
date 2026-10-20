@@ -363,10 +363,16 @@ else
 fi
 mv -f "$PANEL_D/$FK_ID.json.new" "$PANEL_D/$FK_ID.json"
 
+panel_lists() {
+    sed 's/^[0-9a-f]\{64\}  //' "$1/$KIT_PANEL_SUMS" | grep -qxF "$2"
+}
+
 panel_signed() {
     [ -f "$1/$KIT_PANEL_SUMS" ] && [ -f "$1/$KIT_PANEL_SIGNATURE" ] && [ -f "$HERE/$KIT_PANEL_KEY" ] &&
         openssl dgst -sha256 -verify "$HERE/$KIT_PANEL_KEY" -signature "$1/$KIT_PANEL_SIGNATURE" "$1/$KIT_PANEL_SUMS" >/dev/null 2>&1 &&
-        [ "$(cd "$1" && sha256sum "$KIT_PANEL_BINARY" "$KIT_PANEL_UNIT" "$KIT_PANEL_VERSION_FILE" 2>/dev/null)" = "$(cat "$1/$KIT_PANEL_SUMS")" ]
+        ! grep -qv '^[0-9a-f]\{64\}  [A-Za-z0-9][A-Za-z0-9._-]*$' "$1/$KIT_PANEL_SUMS" &&
+        panel_lists "$1" "$KIT_PANEL_BINARY" && panel_lists "$1" "$KIT_PANEL_UNIT" && panel_lists "$1" "$KIT_PANEL_VERSION_FILE" &&
+        (cd "$1" && sha256sum -c --quiet "$KIT_PANEL_SUMS" >/dev/null 2>&1)
 }
 
 PANEL_UPGRADED=0

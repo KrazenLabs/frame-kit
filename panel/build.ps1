@@ -1,25 +1,3 @@
-<#
-.SYNOPSIS
-  Builds the shared FrameKit panel service for the Steam Frame (ARM64 Linux) with Zig.
-
-.DESCRIPTION
-  Produces build\framekit-panel\ : the framekit-panel binary, its systemd unit and VERSION,
-  which `framekit package` bundles into every app package. src\panel.js and VERSION are
-  embedded into the binary through generated headers in build\gen\. The generic helpers (files,
-  text, JSON, clock, log, stop signals, the DevTools client) come from the kit's ..\common\
-  (FrameKit common, the one copy the apps vendor too), in ..\common\src\framekit\.
-
-  The build goes to build\framekit-panel.new\ first. If its three files are the same as the ones
-  in build\framekit-panel\ (the build is reproducible), that folder is kept, and with it the
-  signature `framekit panel-sign` added; otherwise it is replaced and needs signing again.
-
-  Zig is looked up in: $env:ZIG, tools\zig\zig.exe (in this folder), PATH.
-
-.EXAMPLE
-  .\build.ps1          # build for the headset
-  .\build.ps1 -Test    # also build and run the offline tests on this PC
-  .\build.ps1 -Clean   # wipe build\ first (also the signed build)
-#>
 param(
     [switch]$Test,
     [switch]$Clean
@@ -42,9 +20,6 @@ function Find-Zig {
 
 $zig = Find-Zig
 
-# Linking can make Zig build its bundled libc++ first (empty cache, new Zig or new target). That
-# build prints thousands of harmless warnings from libc++'s own sources which look like errors
-# in a console, so the output of those steps is kept back and only shown when the step fails.
 function Invoke-ZigQuiet([string]$what, [string[]]$arguments) {
     $output = & $zig @arguments 2>&1 | ForEach-Object { "$_" }
     if ($LASTEXITCODE -ne 0) {
@@ -53,7 +28,6 @@ function Invoke-ZigQuiet([string]$what, [string[]]$arguments) {
     }
 }
 
-# glibc 2.28 is old enough for any current SteamOS image; libc++ is linked statically by zig.
 $target = "aarch64-linux-gnu.2.28"
 $build = Join-Path $root "build"
 $objDir = Join-Path $build "obj\aarch64"
@@ -82,8 +56,6 @@ if ($LASTEXITCODE -ne 0) { throw "the contract's generated files are out of date
 $version = ([IO.File]::ReadAllText((Join-Path $root $contract.package.panelVersionFile))).Trim()
 if ($version -notmatch "^(?:$($contract.rules.versionPattern))\z") { throw "VERSION '$version' isn't a version number" }
 
-# Embed the page script as a C++ raw string; only rewrite headers that changed, so unchanged
-# builds stay incremental.
 $script = [IO.File]::ReadAllText((Join-Path $root "src\panel.js")) -replace "`r`n", "`n"
 if ($script.Contains(')FKPJS"')) { throw "src\panel.js must not contain the raw string delimiter )FKPJS`"" }
 Write-IfChanged (Join-Path $genDir "panel_js.hpp") ("#pragma once`n`nnamespace fkp {`n`ninline const char* const kPanelScript = R`"FKPJS(" + $script + ")FKPJS`";`n`n}`n")
@@ -124,6 +96,8 @@ Invoke-ZigQuiet "link $panelBinary" (@("c++", "-target", $target, "-O2", "-s") +
 $unit = [IO.File]::ReadAllText((Join-Path $root "package\$($contract.device.panelUnit)")) -replace "`r`n", "`n"
 [IO.File]::WriteAllText((Join-Path $newDir $contract.device.panelUnit), $unit, $utf8)
 [IO.File]::WriteAllText((Join-Path $newDir $contract.package.panelVersionFile), "$version`n", $utf8)
+$notices = [IO.File]::ReadAllText((Join-Path $root "package\$($contract.package.panelNotices)")) -replace "`r`n", "`n"
+[IO.File]::WriteAllText((Join-Path $newDir $contract.package.panelNotices), $notices, $utf8)
 
 python -I (Join-Path $root "tools\check_elf.py") $binary
 if ($LASTEXITCODE -ne 0) { throw "ELF check failed: $binary" }
@@ -131,7 +105,7 @@ if ($LASTEXITCODE -ne 0) { throw "ELF check failed: $binary" }
 function Test-SameFile([string]$a, [string]$b) {
     (Test-Path $a) -and (Test-Path $b) -and (Get-FileHash $a -Algorithm SHA256).Hash -eq (Get-FileHash $b -Algorithm SHA256).Hash
 }
-$builtFiles = @($panelBinary, $contract.device.panelUnit, $contract.package.panelVersionFile)
+$builtFiles = @($panelBinary, $contract.device.panelUnit, $contract.package.panelVersionFile, $contract.package.panelNotices)
 $unchanged = @($builtFiles | Where-Object { -not (Test-SameFile (Join-Path $newDir $_) (Join-Path $outDir $_)) }).Count -eq 0
 if ($unchanged) {
     Remove-Item $newDir -Recurse -Force

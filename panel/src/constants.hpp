@@ -54,6 +54,7 @@ inline constexpr const char* kUpdateScript = "update.sh";
 inline constexpr const char* kConstantsScript = "constants.sh";
 inline constexpr const char* kSigningKey = "signing-key.pem";
 inline constexpr const char* kPanelVersionFile = "VERSION";
+inline constexpr const char* kPanelNotices = "THIRD-PARTY-NOTICES.txt";
 inline constexpr const char* kPanelSums = "SHA256SUMS";
 inline constexpr const char* kPanelSignature = "SHA256SUMS.sig";
 inline constexpr const char* kPanelKey = "framekit-panel-key.pem";

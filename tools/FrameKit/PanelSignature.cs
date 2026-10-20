@@ -5,8 +5,9 @@ namespace FrameKit;
 
 public static class PanelSignature
 {
-    public static readonly string[] SignedFiles = [FrameKitConstants.PanelBinary, FrameKitConstants.PanelUnit, FrameKitConstants.PanelVersionFile];
-    private static readonly string[] TextFiles = [FrameKitConstants.PanelUnit, FrameKitConstants.PanelVersionFile];
+    public static readonly string[] SignedFiles =
+        [FrameKitConstants.PanelBinary, FrameKitConstants.PanelUnit, FrameKitConstants.PanelVersionFile, FrameKitConstants.PanelNotices];
+    private static readonly string[] TextFiles = [FrameKitConstants.PanelUnit, FrameKitConstants.PanelVersionFile, FrameKitConstants.PanelNotices];
 
     public static string Sums(string panelDir)
     {

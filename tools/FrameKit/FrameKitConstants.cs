@@ -50,6 +50,7 @@ internal static class FrameKitConstants
     public const string ConstantsScript = "constants.sh";
     public const string SigningKey = "signing-key.pem";
     public const string PanelVersionFile = "VERSION";
+    public const string PanelNotices = "THIRD-PARTY-NOTICES.txt";
     public const string PanelSums = "SHA256SUMS";
     public const string PanelSignature = "SHA256SUMS.sig";
     public const string PanelKey = "framekit-panel-key.pem";
