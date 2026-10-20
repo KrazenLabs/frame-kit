@@ -60,7 +60,7 @@ std::optional<std::string> Mailbox::submit(const std::vector<std::string>& words
     for (const std::string& word : words) {
         if (hasLineBreak(word)) {
             if (error) {
-                *error = "a word contains a line break";
+                *error = "commands cannot contain line breaks";
             }
             return std::nullopt;
         }
@@ -86,7 +86,7 @@ std::optional<MailboxAnswer> Mailbox::takeAnswer(const std::string& id) {
     const std::optional<Json::Value> root = parseJson(*content);
     MailboxAnswer answer;
     if (!root) {
-        answer.message = "the service's answer couldn't be read";
+        answer.message = "failed to read service response";
         return answer;
     }
     answer.ok = boolMember(*root, "ok");

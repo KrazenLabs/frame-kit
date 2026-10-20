@@ -11,17 +11,14 @@ public static class CommonModule
     public const string SourceFolder = "src";
     public const string NoteSuffix = ".cm";
 
-    public static bool IsNote(string name) => name.EndsWith(NoteSuffix, StringComparison.Ordinal);
+    public static bool IsNote(string name) => name.EndsWith(NoteSuffix, StringComparison.Ordinal) || name == ReadmeFile;
 
     public static IReadOnlyList<string> Files(string folder)
     {
         var files = new List<string>();
-        foreach (var name in new[] { VersionFile, ReadmeFile })
+        if (File.Exists(Path.Combine(folder, VersionFile)))
         {
-            if (File.Exists(Path.Combine(folder, name)))
-            {
-                files.Add(name);
-            }
+            files.Add(VersionFile);
         }
         files.AddRange(SourceFolderFiles(folder).Where(name => !IsNote(name)));
         files.Sort(StringComparer.Ordinal);
@@ -29,7 +26,9 @@ public static class CommonModule
     }
 
     public static IReadOnlyList<string> Notes(string folder) =>
-        SourceFolderFiles(folder).Where(IsNote).Order(StringComparer.Ordinal).ToList();
+        SourceFolderFiles(folder).Where(IsNote)
+            .Concat(File.Exists(Path.Combine(folder, ReadmeFile)) ? [ReadmeFile] : Array.Empty<string>())
+            .Order(StringComparer.Ordinal).ToList();
 
     public static string Sums(string folder)
     {
